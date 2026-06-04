@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+langchain
+langgraph
+langchain-openai
+pydantic
+python-dotenv
+PyPDF2
+python-multipart
+requests
