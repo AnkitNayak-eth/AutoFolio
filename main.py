@@ -559,40 +559,41 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
     title = hero_props.get("title", "Developer")
     subtitle = hero_props.get("subtitle", "")
     jsx_elements.append(f"""
-        <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 mx-auto max-w-7xl">
-          <div className="flex items-center gap-3 text-white font-semibold text-lg">
-            <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold tracking-tighter">A</div>
-            <span className="tracking-tight">Portfolio</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <a href="#work" className="hover:text-white transition-colors">Work</a>
-            <a href="#about" className="hover:text-white transition-colors">About</a>
-          </div>
-          <div>
-            <button className="bg-white text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors">Contact me</button>
-          </div>
+        <nav className="absolute top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 px-8 py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl">
+          <a href="#home" className="text-white font-semibold text-sm bg-white/10 px-4 py-1.5 rounded-full">Home</a>
+          <a href="#about" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">About</a>
+          <a href="#projects" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Projects</a>
+          <a href="#blogs" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Blogs</a>
+          <a href="#contact" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Contact</a>
         </nav>
 
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-[80vh] text-center px-4 mt-16 pointer-events-none">
-          <div className="pointer-events-auto mb-8 flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm backdrop-blur-md shadow-2xl">
-            <span className="bg-white text-black px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide">HELLO</span>
-            <span className="text-gray-300 font-medium tracking-wide">Welcome to my digital space</span>
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] text-center px-4 mt-20 pointer-events-none">
+          <div className="pointer-events-auto w-24 h-24 rounded-full border border-white/20 p-1 mb-6 bg-gradient-to-b from-white/10 to-transparent shadow-xl">
+            <div className="w-full h-full rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-4xl overflow-hidden">
+               🧑‍💻
+            </div>
           </div>
           
-          <h1 className="pointer-events-auto text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight text-white mb-6 max-w-5xl leading-tight drop-shadow-2xl">
-            {title}
+          <div className="pointer-events-auto mb-6 flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-white/10 text-sm backdrop-blur-md shadow-lg">
+            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)] animate-pulse"></div>
+            <span className="text-white font-medium text-xs tracking-wide">Available For New Projects</span>
+          </div>
+          
+          <h1 className="pointer-events-auto text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 max-w-4xl leading-[1.1] drop-shadow-2xl">
+            <span className="font-serif italic text-gray-200">Hi, I'm a Builder</span> 👋 <br/>
+            <span className="font-sans font-extrabold">{title}</span>
           </h1>
           
-          <p className="pointer-events-auto text-xl md:text-2xl text-gray-400 mb-10 max-w-3xl font-light leading-relaxed">
+          <p className="pointer-events-auto text-lg md:text-xl text-gray-400 mb-10 max-w-2xl font-light leading-relaxed">
             {subtitle}
           </p>
           
-          <div className="pointer-events-auto flex flex-col sm:flex-row items-center gap-4">
-            <button className="bg-white text-black px-8 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-              Get started
+          <div className="pointer-events-auto flex flex-col sm:flex-row items-center gap-5">
+            <button className="bg-black/40 text-white border border-white/20 px-8 py-3.5 rounded-xl font-bold hover:bg-white/10 transition-all backdrop-blur-xl flex items-center gap-2 shadow-lg">
+              Explore My Work ↓
             </button>
-            <button className="bg-black/40 text-white border border-white/10 px-8 py-3.5 rounded-xl font-bold hover:bg-white/10 transition-all backdrop-blur-xl">
-              Learn more
+            <button className="bg-white text-black px-8 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.4)] flex items-center gap-2">
+              🤝 Let's Connect
             </button>
           </div>
         </div>""")
@@ -619,10 +620,33 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
             # Generic fallback for unknown sections
             colors = ["text-blue-400", "text-purple-400", "text-green-400", "text-pink-400"]
             color = random.choice(colors)
+            
+            content_jsx = ""
+            if isinstance(props, dict):
+                for k, v in props.items():
+                    if isinstance(v, str):
+                        content_jsx += f'<p className="text-gray-300 text-lg leading-relaxed mb-4">{{ {json.dumps(v)} }}</p>\\n            '
+                    elif isinstance(v, list):
+                        content_jsx += '<ul className="list-disc pl-5 mb-4 space-y-2 text-gray-300">\\n'
+                        for item in v:
+                            if isinstance(item, str):
+                                content_jsx += f'              <li>{{ {json.dumps(item)} }}</li>\\n'
+                        content_jsx += '            </ul>\\n            '
+            
+            if not content_jsx:
+                content_jsx = '<p className="text-gray-400 italic">No content available.</p>'
+
             jsx_elements.append(f"""
-        <div className="mb-12 p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl hover:bg-white/10 transition-all">
-          <h2 className="text-4xl font-bold mb-4 {color}">{t}</h2>
-          <pre className="whitespace-pre-wrap text-sm text-gray-300">{{JSON.stringify({json.dumps(props)}, null, 2)}}</pre>
+        <div className="mb-24">
+          <div className="mb-12 text-center">
+            <span className="text-teal-400 font-bold tracking-[0.2em] text-xs uppercase">{t}</span>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold mt-4 text-white">A Glimpse Into My {t}</h2>
+          </div>
+          <div className="p-10 bg-[#0a0a0a]/80 backdrop-blur-md rounded-3xl border border-white/5 shadow-2xl hover:bg-white/5 transition-all max-w-4xl mx-auto">
+            <div className="prose prose-invert max-w-none">
+              {content_jsx}
+            </div>
+          </div>
         </div>""")
 
     jsx_elements.append("      </div>")
@@ -657,23 +681,26 @@ async def code_generator(state: PortfolioState):
         "  \"sections\": [\n"
         "    {\n"
         "      \"type\": \"Hero\",\n"
-        "      \"props\": {\"title\": \"John Doe\", \"subtitle\": \"Frontend Engineer\"}\n"
+        "      \"props\": {\"title\": \"John Doe\", \"subtitle\": \"EXACT bio text from the portfolio content, e.g., 'Full-Stack Developer skilled in Next.js, MERN...'\"}\n"
         "    },\n"
         "    {\n"
         "      \"type\": \"MagicBento\",\n"
-        "      \"props\": {\"textAutoHide\": true, \"enableSpotlight\": true}\n"
+        "      \"props\": {\n"
+        "         \"items\": [\n"
+        "            { \"title\": \"Project 1\", \"description\": \"Description of the project...\", \"label\": \"Portfolio\" }\n"
+        "         ],\n"
+        "         \"textAutoHide\": true, \"enableSpotlight\": true\n"
+        "      }\n"
         "    },\n"
         "    {\n"
         "      \"type\": \"LogoLoop\",\n"
         "      \"props\": {\"logos\": [{\"src\": \"https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg\", \"alt\": \"React\"}], \"speed\": 120}\n"
-        "    },\n"
-        "    {\n"
-        "      \"type\": \"About\",\n"
-        "      \"props\": {\"text\": \"Generic fallback section text...\"}\n"
         "    }\n"
         "  ]\n"
         "}\n"
-        "IMPORTANT: You MUST use 'MagicBento' and 'LogoLoop' component types in your sections to make the UI look good. Use generic text sections minimally.\n"
+        "IMPORTANT: You MUST heavily use 'MagicBento' for 'About', 'Experience', and 'Projects' sections to recreate a 'Toolbox/CV' bento grid aesthetic.\n"
+        "CRITICAL: When using MagicBento, you MUST pass an `items` array populated with the user's REAL GitHub projects, skills, or experience from the PORTFOLIO CONTENT.\n"
+        "CRITICAL: The Hero subtitle MUST be a detailed, meaningful description extracted directly from the user's bio. Do NOT generate generic text like 'Developer & Innovator'.\n"
         "Keep the JSON minimal but ensure it captures the essence of the content."
     )
     
