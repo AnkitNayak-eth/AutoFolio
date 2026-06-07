@@ -316,7 +316,7 @@ function WorkspaceInner({ onReset }: { onReset: () => void }) {
           </div>
           <div>
             <h1 className="text-md font-semibold tracking-wide text-white flex items-center gap-2">
-              Antigravity <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Sandbox IDE</span>
+              autoFolio <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Sandbox IDE</span>
             </h1>
             <p className="text-[10px] text-zinc-400">Multi-agent Developer Workspace</p>
           </div>

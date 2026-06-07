@@ -337,7 +337,8 @@ module.exports = {
     "three": "^0.160.0",
     "@react-three/fiber": "^8.15.12",
     "@react-three/drei": "^9.96.1",
-    "gsap": "^3.12.5"
+    "gsap": "^3.12.5",
+    "lenis": "latest"
   }
 }"""
 }
@@ -373,7 +374,7 @@ def sanitize_imports(code: str) -> str:
     lines = code.split("\n")
     clean_lines = []
     
-    ALLOWED_MODULES = {"react", "framer-motion", "lucide-react", "ogl", "three", "@react-three/fiber", "@react-three/drei", "three/src/math/MathUtils.js", "gsap", "react-icons/si"}
+    ALLOWED_MODULES = {"react", "framer-motion", "lucide-react", "ogl", "three", "@react-three/fiber", "@react-three/drei", "three/src/math/MathUtils.js", "gsap", "react-icons/si", "lenis"}
     
     for line in lines:
         stripped = line.strip()
@@ -612,8 +613,13 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
 
         if t in design_templates.get_component_names():
             # Render the actual UI component!
+            wrapper_class = "mb-12 relative w-full overflow-hidden"
+            if t == "ScrollStack":
+                wrapper_class += " h-[80vh]"
+                props["useWindowScroll"] = False
+
             jsx_elements.append(f"""
-        <div className="mb-12 relative w-full overflow-hidden">
+        <div className="{wrapper_class}">
           <{t} {{...{json.dumps(props)}}} />
         </div>""")
         else:
@@ -627,11 +633,27 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
                     if isinstance(v, str):
                         content_jsx += f'<p className="text-gray-300 text-lg leading-relaxed mb-4">{{ {json.dumps(v)} }}</p>\\n            '
                     elif isinstance(v, list):
-                        content_jsx += '<ul className="list-disc pl-5 mb-4 space-y-2 text-gray-300">\\n'
-                        for item in v:
-                            if isinstance(item, str):
-                                content_jsx += f'              <li>{{ {json.dumps(item)} }}</li>\\n'
-                        content_jsx += '            </ul>\\n            '
+                        if len(v) > 0 and isinstance(v[0], dict):
+                            content_jsx += '<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">\\n'
+                            for item in v:
+                                if isinstance(item, dict):
+                                    content_jsx += '  <div className="flex flex-col p-6 rounded-2xl bg-[#0f0f11] border border-white/10 shadow-xl hover:border-teal-500/50 hover:bg-[#15151a] transition-all">\\n'
+                                    for dk, dv in item.items():
+                                        if isinstance(dv, str):
+                                            if dk.lower() in ["title", "name", "role", "company"]:
+                                                content_jsx += f'    <h3 className="text-xl font-bold text-white mb-3">{{ {json.dumps(dv)} }}</h3>\\n'
+                                            else:
+                                                content_jsx += f'    <p className="text-sm text-gray-400 mb-2 leading-relaxed"><strong className="text-teal-400 capitalize">{{ {json.dumps(dk)} }}:</strong> {{ {json.dumps(dv)} }}</p>\\n'
+                                        elif isinstance(dv, list):
+                                            content_jsx += f'    <p className="text-sm text-gray-400 mb-2 leading-relaxed"><strong className="text-teal-400 capitalize">{{ {json.dumps(dk)} }}:</strong> {{ {json.dumps(", ".join([str(x) for x in dv]))} }}</p>\\n'
+                                    content_jsx += '  </div>\\n'
+                            content_jsx += '</div>\\n'
+                        else:
+                            content_jsx += '<ul className="list-disc pl-5 mb-4 space-y-2 text-gray-300">\\n'
+                            for item in v:
+                                if isinstance(item, str):
+                                    content_jsx += f'              <li>{{ {json.dumps(item)} }}</li>\\n'
+                            content_jsx += '            </ul>\\n            '
             
             if not content_jsx:
                 content_jsx = '<p className="text-gray-400 italic">No content available.</p>'
@@ -676,18 +698,18 @@ async def code_generator(state: PortfolioState):
         "You MUST output valid JSON ONLY, no markdown, no explanation.\n"
         "The JSON should have the following structure:\n"
         "{\n"
-        "  \"background\": \"DotField\", // Full-screen background — choose ONE of: 'ShapeGrid', 'DotField'\n"
-        "  \"hero_effect\": \"RippleGrid\", // Hero section visual effect — choose ONE of: 'RippleGrid', 'Lightning', 'Beams', 'GradientBlinds', 'DarkVeil', 'Silk', 'ColorBends', 'Prism', or null for no effect\n"
+        "  \"background\": \"<CHOOSE_ONE_OF: ShapeGrid, DotField>\", // Full-screen background\n"
+        "  \"hero_effect\": \"<CHOOSE_ONE_OF: RippleGrid, Lightning, Beams, GradientBlinds, DarkVeil, Silk, ColorBends, Prism>\", // Hero section visual effect\n"
         "  \"sections\": [\n"
         "    {\n"
         "      \"type\": \"Hero\",\n"
-        "      \"props\": {\"title\": \"John Doe\", \"subtitle\": \"EXACT bio text from the portfolio content, e.g., 'Full-Stack Developer skilled in Next.js, MERN...'\"}\n"
+        "      \"props\": {\"title\": \"<USER_NAME_OR_TITLE>\", \"subtitle\": \"<EXTRACT_DETAILED_BIO_FROM_PORTFOLIO_CONTENT>\"}\n"
         "    },\n"
         "    {\n"
         "      \"type\": \"MagicBento\",\n"
         "      \"props\": {\n"
         "         \"items\": [\n"
-        "            { \"title\": \"Project 1\", \"description\": \"Description of the project...\", \"label\": \"Portfolio\" }\n"
+        "            { \"title\": \"<DYNAMIC_SKILL_OR_TRAIT>\", \"description\": \"<DYNAMIC_DESC>\", \"label\": \"<DYNAMIC_LABEL>\" }\n"
         "         ],\n"
         "         \"textAutoHide\": true, \"enableSpotlight\": true\n"
         "      }\n"
@@ -698,9 +720,11 @@ async def code_generator(state: PortfolioState):
         "    }\n"
         "  ]\n"
         "}\n"
-        "IMPORTANT: You MUST heavily use 'MagicBento' for 'About', 'Experience', and 'Projects' sections to recreate a 'Toolbox/CV' bento grid aesthetic.\n"
-        "CRITICAL: When using MagicBento, you MUST pass an `items` array populated with the user's REAL GitHub projects, skills, or experience from the PORTFOLIO CONTENT.\n"
-        "CRITICAL: The Hero subtitle MUST be a detailed, meaningful description extracted directly from the user's bio. Do NOT generate generic text like 'Developer & Innovator'.\n"
+        "IMPORTANT: You MUST use 'MagicBento' ONLY for the 'About' section to recreate a 'Toolbox/CV' bento grid aesthetic. DO NOT use 'MagicBento' for Projects or Experience.\n"
+        "IMPORTANT: You MUST use the 'ScrollStack' component specifically for the 'Projects' section. Extract exactly the top 4 projects based on stars and pass them as `items` to ScrollStack.\n"
+        "CRITICAL: When using MagicBento or ScrollStack, you MUST pass an `items` array populated with the user's REAL data from the PORTFOLIO CONTENT.\n"
+        "CRITICAL: When generating standard/generic sections (like Experience), you MUST provide the data as an array of objects in the props (e.g., `\"items\": [{\"name\": \"...\", \"description\": \"...\"}]`) so they can be rendered as cards.\n"
+        "CRITICAL: The Hero subtitle MUST be a detailed, meaningful description extracted directly from the user's bio content. DO NOT output placeholder text.\n"
         "Keep the JSON minimal but ensure it captures the essence of the content."
     )
     

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Antigravity — AI Multi-Agent Portfolio Sandbox",
-  description: "Generate, test, edit, and export gorgeous Next.js portfolios using a cooperative team of specialized AI agents.",
+  title: "autoFolio",
+  description: "Multi-agent, multi-LLM portfolio generator with a self-healing code pipeline. Sandpack renders live in-browser. Features auto-error detection & self-repair loop.",
 };
 
 export default function RootLayout({

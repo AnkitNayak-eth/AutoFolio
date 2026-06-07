@@ -177,6 +177,23 @@ DESIGN_COMPONENTS = {
             "  <LogoLoop logos={[{node: <SiReact />, title: 'React'}, {node: <SiNextdotjs />, title: 'Next.js'}, {node: <SiTypescript />, title: 'TypeScript'}, {node: <SiTailwindcss />, title: 'Tailwind'}]} speed={120} direction=\"left\" logoHeight={48} gap={40} hoverSpeed={0} scaleOnHover fadeOut fadeOutColor=\"#120F17\" />\n"
             "  Props: logos, speed, direction, width, logoHeight, gap, pauseOnHover, hoverSpeed, fadeOut, fadeOutColor, scaleOnHover, renderItem, ariaLabel.\n"
         ),
+    },
+    "ScrollStack": {
+        "file": "components/ScrollStack.tsx",
+        "source_path": "templates/components/ScrollStack.tsx",
+        "type": "component",
+        "usage_hint": (
+            "AVAILABLE PRE-BUILT COMPONENT — ScrollStack (3D parallax stacking cards):\n"
+            "  import ScrollStack, { ScrollStackItem } from '../components/ScrollStack';\n"
+            "  Usage: Use this specifically for showcasing the top 4 projects. Each project should be wrapped in a ScrollStackItem.\n"
+            "  <div style={{ height: '500px' }}>\n"
+            "    <ScrollStack useWindowScroll={false}>\n"
+            "      <ScrollStackItem><h3>Project 1</h3></ScrollStackItem>\n"
+            "      <ScrollStackItem><h3>Project 2</h3></ScrollStackItem>\n"
+            "    </ScrollStack>\n"
+            "  </div>\n"
+            "  Props (ScrollStack): items, useWindowScroll, itemDistance, itemScale, itemStackDistance.\n"
+        ),
     }
 }
 
