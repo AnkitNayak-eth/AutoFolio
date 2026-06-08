@@ -629,8 +629,7 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
             # Render the actual UI component!
             wrapper_class = "mb-12 relative w-full overflow-hidden"
             if t == "ScrollStack":
-                wrapper_class += " h-[80vh]"
-                props["useWindowScroll"] = False
+                props["useWindowScroll"] = True
 
             jsx_elements.append(f"""
         <div className="{wrapper_class}">
@@ -726,23 +725,13 @@ async def code_generator(state: PortfolioState):
         "      \"props\": {\"name\": \"<EXTRACT_REAL_NAME_FROM_CONTENT_OR_USE_USERNAME>\", \"title\": \"<JOB_TITLE_OR_SPECIALTY>\", \"subtitle\": \"<EXTRACT_DETAILED_BIO_FROM_PORTFOLIO_CONTENT>\"}\n"
         "    },\n"
         "    {\n"
-        "      \"type\": \"MagicBento\",\n"
-        "      \"props\": {\n"
-        "         \"items\": [\n"
-        "            { \"title\": \"<DYNAMIC_SKILL_OR_TRAIT>\", \"description\": \"<DYNAMIC_DESC>\", \"label\": \"<DYNAMIC_LABEL>\" }\n"
-        "         ],\n"
-        "         \"textAutoHide\": true, \"enableSpotlight\": true\n"
-        "      }\n"
-        "    },\n"
-        "    {\n"
         "      \"type\": \"LogoLoop\",\n"
         "      \"props\": {\"logos\": [{\"src\": \"https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg\", \"alt\": \"React\"}], \"speed\": 120}\n"
         "    }\n"
         "  ]\n"
         "}\n"
-        "IMPORTANT: You MUST use 'MagicBento' ONLY for the 'About' section to recreate a 'Toolbox/CV' bento grid aesthetic. DO NOT use 'MagicBento' for Projects or Experience.\n"
         "IMPORTANT: You MUST use the 'ScrollStack' component specifically for the 'Projects' section. Extract exactly the top 4 projects based on stars and pass them as `items` to ScrollStack.\n"
-        "CRITICAL: When using MagicBento or ScrollStack, you MUST pass an `items` array populated with the user's REAL data from the PORTFOLIO CONTENT.\n"
+        "CRITICAL: When using ScrollStack, you MUST pass an `items` array populated with the user's REAL data from the PORTFOLIO CONTENT.\n"
         "CRITICAL: When generating standard/generic sections (like Experience), you MUST provide the data as an array of objects in the props (e.g., `\"items\": [{\"name\": \"...\", \"description\": \"...\"}]`) so they can be rendered as cards.\n"
         "CRITICAL: The Hero subtitle MUST be a detailed, meaningful description extracted directly from the user's bio content. DO NOT output placeholder text.\n"
         "Keep the JSON minimal but ensure it captures the essence of the content."
@@ -821,7 +810,7 @@ def build_mod_graph():
             + "\n\nUser request or Sandbox Error Log: " + state.get("modification_request", "")
             + "\n\nIf the user provided an error, diagnose and fix it completely. If they provided a feature request, implement it beautifully using Tailwind and Framer Motion.\n"
             "Rules:\n"
-            "- You may import from: 'framer-motion', 'lucide-react', 'react', 'gsap', 'react-icons/si', and relative paths like '../components/ShapeGrid', '../components/DotField', '../components/RippleGrid', '../components/Lightning', '../components/Beams', '../components/GradientBlinds', '../components/Prism', '../components/DarkVeil', '../components/Silk', '../components/ColorBends', '../components/MagicBento', '../components/LogoLoop'.\n"
+            "- You may import from: 'framer-motion', 'lucide-react', 'react', 'gsap', 'react-icons/si', and relative paths like '../components/ShapeGrid', '../components/DotField', '../components/RippleGrid', '../components/Lightning', '../components/Beams', '../components/GradientBlinds', '../components/Prism', '../components/DarkVeil', '../components/Silk', '../components/ColorBends', '../components/LogoLoop'.\n"
             "- Do NOT import from any other modules.\n"
             "- CRITICAL: Ensure there is ONLY ONE declaration of the `Portfolio` function. Export as `export default function Portfolio()`.\n"
             "- Return ONLY the modified code for `pages/portfolio.tsx`. NO EXPLANATIONS. NO MARKDOWN TEXT. JUST THE RAW CODE!\n"

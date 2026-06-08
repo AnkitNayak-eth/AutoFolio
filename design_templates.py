@@ -153,18 +153,7 @@ DESIGN_COMPONENTS = {
             "  Props: colors (string[]), rotation (number), speed (number), scale (number), frequency (number), warpStrength (number), mouseInfluence (number), noise (number), parallax (number), iterations (number), intensity (number), bandWidth (number), transparent (boolean).\n"
         ),
     },
-    "MagicBento": {
-        "file": "components/MagicBento.tsx",
-        "source_path": "templates/components/MagicBento.tsx",
-        "type": "component",
-        "usage_hint": (
-            "AVAILABLE PRE-BUILT COMPONENT — MagicBento (interactive bento grid layout):\n"
-            "  import MagicBento from '../components/MagicBento';\n"
-            "  Usage: Place this directly in the page to show an interactive bento grid of cards. Best used in an 'About' or 'Features' section.\n"
-            "  <MagicBento items={[{ title: 'Project 1', description: 'Built with React', label: 'Feature' }]} textAutoHide={true} enableStars={false} enableSpotlight={true} enableBorderGlow={true} enableTilt enableMagnetism clickEffect={true} spotlightRadius={100} particleCount={12} glowColor=\"132, 0, 255\" />\n"
-            "  Props: items (array of {title, description, label}), textAutoHide, enableStars, enableSpotlight, enableBorderGlow, disableAnimations, spotlightRadius, particleCount, enableTilt, glowColor, clickEffect, enableMagnetism.\n"
-        ),
-    },
+
     "LogoLoop": {
         "file": "components/LogoLoop.tsx",
         "source_path": "templates/components/LogoLoop.tsx",

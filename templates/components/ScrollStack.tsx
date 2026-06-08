@@ -252,31 +252,20 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       const scroller = scrollerRef.current;
       if (!scroller) return;
 
-      const lenis = new Lenis({
-        wrapper: scroller,
-        content: scroller.querySelector('.scroll-stack-inner') as HTMLElement,
-        duration: 1.2,
-        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        touchMultiplier: 2,
-        infinite: false,
-        gestureOrientation: 'vertical',
-        wheelMultiplier: 1,
-        lerp: 0.1,
-        syncTouch: true,
-        syncTouchLerp: 0.075
-      });
+      scroller.addEventListener('scroll', handleScroll, { passive: true });
 
-      lenis.on('scroll', handleScroll);
-
-      const raf = (time: number) => {
-        lenis.raf(time);
+      const raf = () => {
+        handleScroll();
         animationFrameRef.current = requestAnimationFrame(raf);
       };
       animationFrameRef.current = requestAnimationFrame(raf);
 
-      lenisRef.current = lenis;
-      return lenis;
+      return {
+        destroy: () => {
+          scroller.removeEventListener('scroll', handleScroll);
+          if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        }
+      } as any;
     }
   }, [handleScroll, useWindowScroll]);
 
@@ -347,7 +336,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         willChange: 'scroll-position'
       }}
     >
-      <div className="scroll-stack-inner pt-[20vh] px-20 pb-[50rem] min-h-screen">
+      <div className="scroll-stack-inner pt-[10vh] px-4 md:px-20 pb-[20vh] min-h-screen">
         {items && items.length > 0 ? (
           items.map((item, index) => (
             <ScrollStackItem key={index} item={item} />
