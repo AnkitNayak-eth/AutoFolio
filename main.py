@@ -645,29 +645,33 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
             if isinstance(props, dict):
                 for k, v in props.items():
                     if isinstance(v, str):
-                        content_jsx += f'<p className="text-gray-300 text-lg leading-relaxed mb-6 whitespace-pre-wrap">{{ {json.dumps(v)} }}</p>\\n            '
+                        v_lines = str(v).replace("\\n", "\n").split("\n")
+                        v_jsx = "<br/>".join([f"<span>{{ {json.dumps(line.strip())} }}</span>" for line in v_lines if line.strip()])
+                        content_jsx += f'<p className="text-gray-300 text-lg leading-relaxed mb-6 whitespace-pre-wrap">{v_jsx}</p>\n            '
                     elif isinstance(v, list):
                         if len(v) > 0 and isinstance(v[0], dict):
-                            content_jsx += '<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">\\n'
+                            content_jsx += '<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">\n'
                             for item in v:
                                 if isinstance(item, dict):
-                                    content_jsx += '  <div className="flex flex-col p-6 rounded-2xl bg-[#0f0f11] border border-white/10 shadow-xl hover:border-teal-500/50 hover:bg-[#15151a] transition-all">\\n'
+                                    content_jsx += '  <div className="flex flex-col p-6 rounded-2xl bg-[#0f0f11] border border-white/10 shadow-xl hover:border-teal-500/50 hover:bg-[#15151a] transition-all">\n'
                                     for dk, dv in item.items():
                                         if isinstance(dv, str):
+                                            dv_lines = str(dv).replace("\\n", "\n").split("\n")
+                                            dv_jsx = "<br/>".join([f"<span>{{ {json.dumps(line.strip())} }}</span>" for line in dv_lines if line.strip()])
                                             if dk.lower() in ["title", "name", "role", "company"]:
-                                                content_jsx += f'    <h3 className="text-xl font-bold text-white mb-3">{{ {json.dumps(dv)} }}</h3>\\n'
+                                                content_jsx += f'    <h3 className="text-xl font-bold text-white mb-3">{dv_jsx}</h3>\n'
                                             else:
-                                                content_jsx += f'    <p className="text-sm text-gray-400 mb-2 leading-relaxed"><strong className="text-teal-400 capitalize">{{ {json.dumps(dk)} }}:</strong> {{ {json.dumps(dv)} }}</p>\\n'
+                                                content_jsx += f'    <p className="text-sm text-gray-400 mb-2 leading-relaxed"><strong className="text-teal-400 capitalize">{{ {json.dumps(dk)} }}:</strong> {dv_jsx}</p>\n'
                                         elif isinstance(dv, list):
-                                            content_jsx += f'    <p className="text-sm text-gray-400 mb-2 leading-relaxed"><strong className="text-teal-400 capitalize">{{ {json.dumps(dk)} }}:</strong> {{ {json.dumps(", ".join([str(x) for x in dv]))} }}</p>\\n'
-                                    content_jsx += '  </div>\\n'
-                            content_jsx += '</div>\\n'
+                                            content_jsx += f'    <p className="text-sm text-gray-400 mb-2 leading-relaxed"><strong className="text-teal-400 capitalize">{{ {json.dumps(dk)} }}:</strong> {{ {json.dumps(", ".join([str(x) for x in dv]))} }}</p>\n'
+                                    content_jsx += '  </div>\n'
+                            content_jsx += '</div>\n'
                         else:
-                            content_jsx += '<ul className="list-disc pl-5 mb-4 space-y-2 text-gray-300">\\n'
+                            content_jsx += '<ul className="list-disc pl-5 mb-4 space-y-2 text-gray-300">\n'
                             for item in v:
                                 if isinstance(item, str):
-                                    content_jsx += f'              <li>{{ {json.dumps(item)} }}</li>\\n'
-                            content_jsx += '            </ul>\\n            '
+                                    content_jsx += f'              <li>{{ {json.dumps(item)} }}</li>\n'
+                            content_jsx += '            </ul>\n            '
             
             if not content_jsx:
                 content_jsx = '<p className="text-gray-400 italic">No content available.</p>'
