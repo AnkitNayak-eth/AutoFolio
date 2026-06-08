@@ -704,15 +704,16 @@ const MagicBento: React.FC<BentoProps> = ({
                   clickEffect={clickEffect}
                   enableMagnetism={enableMagnetism}
                 >
-                  <div className="card__header flex justify-between gap-3 relative text-white">
-                    <span className="card__label text-base">{card.label}</span>
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none"></div>
+                  <div className="card__header flex justify-between gap-3 relative z-10 text-white">
+                    <span className="card__label px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-gray-300 shadow-sm">{card.label}</span>
                   </div>
-                  <div className="card__content flex flex-col relative text-white">
-                    <h3 className={`card__title font-normal text-base m-0 mb-1 ${textAutoHide ? 'text-clamp-1' : ''}`}>
+                  <div className="card__content flex flex-col relative z-10 text-white mt-auto pt-8">
+                    <h3 className={`card__title font-bold text-xl md:text-2xl tracking-wide m-0 mb-2 text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500 ${textAutoHide ? 'text-clamp-1' : ''}`}>
                       {card.title}
                     </h3>
                     <p
-                      className={`card__description text-xs leading-5 opacity-90 ${textAutoHide ? 'text-clamp-2' : ''}`}
+                      className={`card__description text-sm font-medium leading-relaxed text-gray-400 ${textAutoHide ? 'text-clamp-2' : ''}`}
                     >
                       {card.description}
                     </p>
@@ -836,14 +837,15 @@ const MagicBento: React.FC<BentoProps> = ({
                   el.addEventListener('click', handleClick);
                 }}
               >
-                <div className="card__header flex justify-between gap-3 relative text-white">
-                  <span className="card__label text-base">{card.label}</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none"></div>
+                <div className="card__header flex justify-between gap-3 relative z-10 text-white">
+                  <span className="card__label px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-gray-300 shadow-sm">{card.label}</span>
                 </div>
-                <div className="card__content flex flex-col relative text-white">
-                  <h3 className={`card__title font-normal text-base m-0 mb-1 ${textAutoHide ? 'text-clamp-1' : ''}`}>
+                <div className="card__content flex flex-col relative z-10 text-white mt-auto pt-8">
+                  <h3 className={`card__title font-bold text-xl md:text-2xl tracking-wide m-0 mb-2 text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500 ${textAutoHide ? 'text-clamp-1' : ''}`}>
                     {card.title}
                   </h3>
-                  <p className={`card__description text-xs leading-5 opacity-90 ${textAutoHide ? 'text-clamp-2' : ''}`}>
+                  <p className={`card__description text-sm font-medium leading-relaxed text-gray-400 ${textAutoHide ? 'text-clamp-2' : ''}`}>
                     {card.description}
                   </p>
                 </div>

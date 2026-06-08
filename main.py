@@ -67,6 +67,18 @@ def fetch_github_data(github_url: str) -> str:
             f"https://api.github.com/users/{username}/repos?sort=stars&per_page=10",
             timeout=10,
         ).json()
+        profile_readme = ""
+        try:
+            readme_res = requests.get(f"https://raw.githubusercontent.com/{username}/{username}/main/README.md", timeout=5)
+            if readme_res.status_code == 200:
+                profile_readme = readme_res.text
+            else:
+                readme_res = requests.get(f"https://raw.githubusercontent.com/{username}/{username}/master/README.md", timeout=5)
+                if readme_res.status_code == 200:
+                    profile_readme = readme_res.text
+        except Exception:
+            pass
+
         return json.dumps({
             "name": user.get("name", username),
             "bio": user.get("bio", ""),
@@ -76,6 +88,7 @@ def fetch_github_data(github_url: str) -> str:
             "blog": user.get("blog", ""),
             "public_repos": user.get("public_repos", 0),
             "followers": user.get("followers", 0),
+            "profile_readme": profile_readme[:2000] if profile_readme else "", # Limit length to save tokens
             "repos": [
                 {"name": r["name"], "desc": r.get("description", ""), "lang": r.get("language", ""), "stars": r["stargazers_count"], "url": r["html_url"]}
                 for r in repos if isinstance(r, dict)
@@ -557,6 +570,7 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
             hero_props = section.get("props", {})
             break
 
+    name = hero_props.get("name", "a Builder")
     title = hero_props.get("title", "Developer")
     subtitle = hero_props.get("subtitle", "")
     jsx_elements.append(f"""
@@ -581,7 +595,7 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
           </div>
           
           <h1 className="pointer-events-auto text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 max-w-4xl leading-[1.1] drop-shadow-2xl">
-            <span className="font-serif italic text-gray-200">Hi, I'm a Builder</span> 👋 <br/>
+            <span className="font-serif italic text-gray-200">Hi, I'm {name}</span> 👋 <br/>
             <span className="font-sans font-extrabold">{title}</span>
           </h1>
           
@@ -631,7 +645,7 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
             if isinstance(props, dict):
                 for k, v in props.items():
                     if isinstance(v, str):
-                        content_jsx += f'<p className="text-gray-300 text-lg leading-relaxed mb-4">{{ {json.dumps(v)} }}</p>\\n            '
+                        content_jsx += f'<p className="text-gray-300 text-lg leading-relaxed mb-6 whitespace-pre-wrap">{{ {json.dumps(v)} }}</p>\\n            '
                     elif isinstance(v, list):
                         if len(v) > 0 and isinstance(v[0], dict):
                             content_jsx += '<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">\\n'
@@ -659,13 +673,15 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
                 content_jsx = '<p className="text-gray-400 italic">No content available.</p>'
 
             jsx_elements.append(f"""
-        <div className="mb-24">
-          <div className="mb-12 text-center">
-            <span className="text-teal-400 font-bold tracking-[0.2em] text-xs uppercase">{t}</span>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mt-4 text-white">A Glimpse Into My {t}</h2>
+        <div className="mb-32 relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-gradient-to-br from-teal-500/10 to-purple-500/10 blur-3xl rounded-full pointer-events-none"></div>
+          <div className="mb-12 text-center relative z-10">
+            <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-teal-400 font-bold tracking-[0.2em] text-xs uppercase shadow-sm backdrop-blur-md">{t}</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-6 text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500 tracking-tight">{t} Highlights</h2>
           </div>
-          <div className="p-10 bg-[#0a0a0a]/80 backdrop-blur-md rounded-3xl border border-white/5 shadow-2xl hover:bg-white/5 transition-all max-w-4xl mx-auto">
-            <div className="prose prose-invert max-w-none">
+          <div className="relative z-10 p-10 md:p-14 bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/20 transition-all duration-500 max-w-5xl mx-auto">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent rounded-[2.5rem] pointer-events-none"></div>
+            <div className="prose prose-invert max-w-none relative z-20">
               {content_jsx}
             </div>
           </div>
@@ -703,7 +719,7 @@ async def code_generator(state: PortfolioState):
         "  \"sections\": [\n"
         "    {\n"
         "      \"type\": \"Hero\",\n"
-        "      \"props\": {\"title\": \"<USER_NAME_OR_TITLE>\", \"subtitle\": \"<EXTRACT_DETAILED_BIO_FROM_PORTFOLIO_CONTENT>\"}\n"
+        "      \"props\": {\"name\": \"<EXTRACT_REAL_NAME_FROM_CONTENT_OR_USE_USERNAME>\", \"title\": \"<JOB_TITLE_OR_SPECIALTY>\", \"subtitle\": \"<EXTRACT_DETAILED_BIO_FROM_PORTFOLIO_CONTENT>\"}\n"
         "    },\n"
         "    {\n"
         "      \"type\": \"MagicBento\",\n"
