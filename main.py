@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Optional, TypedDict, Annotated
-import operator, os, json, re, requests, sys, time
+import operator, os, json, re, requests, sys, time, random
 
 # Force stdout/stderr to use utf-8
 try:
@@ -79,6 +79,18 @@ def fetch_github_data(github_url: str) -> str:
         except Exception:
             pass
 
+        social_accounts = []
+        try:
+            social_res = requests.get(
+                f"https://api.github.com/users/{username}/social_accounts",
+                headers={"Accept": "application/vnd.github.v3+json"},
+                timeout=5
+            )
+            if social_res.status_code == 200:
+                social_accounts = social_res.json()
+        except Exception:
+            pass
+
         return json.dumps({
             "name": user.get("name", username),
             "bio": user.get("bio", ""),
@@ -86,6 +98,9 @@ def fetch_github_data(github_url: str) -> str:
             "location": user.get("location", ""),
             "company": user.get("company", ""),
             "blog": user.get("blog", ""),
+            "email": user.get("email", ""),
+            "twitter_username": user.get("twitter_username", ""),
+            "social_accounts": [{"provider": s.get("provider", ""), "url": s.get("url", "")} for s in social_accounts if isinstance(s, dict)],
             "public_repos": user.get("public_repos", 0),
             "followers": user.get("followers", 0),
             "profile_readme": profile_readme[:2000] if profile_readme else "", # Limit length to save tokens
@@ -473,6 +488,9 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
     jsx_elements.append("""
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">""")
 
+    # Hero effect wrapper to isolate canvas size and blend edges
+    jsx_elements.append('<header className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden">')
+
     # Hero effect overlay (absolute, inside hero container)
     if hero_effect == "RippleGrid":
         rippleIntensity = round(random.uniform(0.02, 0.08), 3)
@@ -563,6 +581,9 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
           <Prism animationType="rotate" timeScale={{0.5}} height={{3.5}} baseWidth={{5.5}} scale={{3.6}} hueShift={{{hueShift}}} colorFrequency={{{colorFrequency}}} noise={{{noise}}} glow={{1}} />
         </div>""")
 
+    # Add the blending gradient to fade into the next section
+    jsx_elements.append('<div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-neutral-950 to-transparent z-10 pointer-events-none"></div>')
+
     # Hero text content
     hero_props = {}
     for section in sections:
@@ -611,7 +632,8 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
               🤝 Let's Connect
             </button>
           </div>
-        </div>""")
+        </div>
+        </header>""")
 
     jsx_elements.append("      </div>")
 
@@ -680,7 +702,7 @@ def assemble_portfolio_tsx(layout_data: dict) -> str:
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-gradient-to-br from-teal-500/10 to-purple-500/10 blur-3xl rounded-full pointer-events-none"></div>
           <div className="mb-12 text-center relative z-10">
             <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-teal-400 font-bold tracking-[0.2em] text-xs uppercase shadow-sm backdrop-blur-md">{t}</span>
-            <h2 className="text-4xl md:text-5xl font-extrabold mt-6 text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500 tracking-tight">{t} Highlights</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold mt-6 pb-2 text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500 tracking-tight">{t} Highlights</h2>
           </div>
           <div className="relative z-10 p-10 md:p-14 bg-[#0a0a0a]/60 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/20 transition-all duration-500 max-w-5xl mx-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent rounded-[2.5rem] pointer-events-none"></div>
@@ -711,14 +733,22 @@ async def code_generator(state: PortfolioState):
     
     content = state.get("portfolio_content", "")
     
+    hero_effects = ["RippleGrid", "Lightning", "Beams", "GradientBlinds", "DarkVeil", "Silk", "ColorBends", "Prism"]
+    random.shuffle(hero_effects)
+    hero_effects_str = ", ".join(hero_effects)
+
+    backgrounds = ["ShapeGrid", "DotField"]
+    random.shuffle(backgrounds)
+    backgrounds_str = ", ".join(backgrounds)
+
     prompt = (
         "You are an AI layout generator for a portfolio website. Based on the following portfolio content, generate a JSON object representing the page layout.\n\n"
         "PORTFOLIO CONTENT:\n" + content + "\n\n"
         "You MUST output valid JSON ONLY, no markdown, no explanation.\n"
         "The JSON should have the following structure:\n"
         "{\n"
-        "  \"background\": \"<CHOOSE_ONE_OF: ShapeGrid, DotField>\", // Full-screen background\n"
-        "  \"hero_effect\": \"<CHOOSE_ONE_OF: RippleGrid, Lightning, Beams, GradientBlinds, DarkVeil, Silk, ColorBends, Prism>\", // Hero section visual effect\n"
+        f"  \"background\": \"<CHOOSE_ONE_OF: {backgrounds_str}>\", // Full-screen background\n"
+        f"  \"hero_effect\": \"<CHOOSE_ONE_OF: {hero_effects_str}>\", // Hero section visual effect\n"
         "  \"sections\": [\n"
         "    {\n"
         "      \"type\": \"Hero\",\n"
