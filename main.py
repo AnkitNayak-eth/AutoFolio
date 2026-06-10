@@ -105,7 +105,17 @@ def fetch_github_data(github_url: str) -> str:
             "followers": user.get("followers", 0),
             "profile_readme": profile_readme[:2000] if profile_readme else "", # Limit length to save tokens
             "repos": [
-                {"name": r["name"], "desc": r.get("description", ""), "lang": r.get("language", ""), "stars": r["stargazers_count"], "url": r["html_url"]}
+                {
+                    "name": r["name"],
+                    "desc": r.get("description", ""),
+                    "lang": r.get("language", ""),
+                    "stars": r["stargazers_count"],
+                    "forks": r.get("forks_count", 0),
+                    "url": r["html_url"],
+                    "homepage": r.get("homepage", ""),
+                    "topics": r.get("topics", []),
+                    "created_at": r.get("created_at", ""),
+                }
                 for r in repos if isinstance(r, dict)
             ],
         })
@@ -761,8 +771,10 @@ async def code_generator(state: PortfolioState):
         "  ]\n"
         "}\n"
         "IMPORTANT: You MUST use the 'ScrollStack' component specifically for the 'Projects' section. Extract exactly the top 4 projects based on stars and pass them as `items` to ScrollStack.\n"
+        "Each ScrollStack item MUST have these fields: {\"title\": \"Project Name\", \"description\": \"2-3 sentence description of what it does\", \"category\": \"e.g. Full-Stack App, Web3, AI/ML\", \"year\": \"2024\", \"techStack\": [\"React\", \"Node.js\", \"...max 5 techs\"], \"highlights\": [\"Key feature 1\", \"Key feature 2\", \"Key feature 3\"], \"link\": \"github_url\", \"homepage\": \"live_demo_url_if_available\"}\n"
         "CRITICAL: When using ScrollStack, you MUST pass an `items` array populated with the user's REAL data from the PORTFOLIO CONTENT.\n"
-        "CRITICAL: When generating standard/generic sections (like Experience), you MUST provide the data as an array of objects in the props (e.g., `\"items\": [{\"name\": \"...\", \"description\": \"...\"}]`) so they can be rendered as cards.\n"
+        "CRITICAL: When generating standard/generic sections (like Experience, Contact), you MUST provide the data as an array of objects in the props (e.g., `\"items\": [{\"name\": \"...\", \"description\": \"...\"}]`) so they can be rendered as cards.\n"
+        "CRITICAL: For the Contact section, extract REAL contact info (email, blog/website, twitter, linkedin, social accounts) from the portfolio data. DO NOT use placeholder text like '[Your Email]'.\n"
         "CRITICAL: The Hero subtitle MUST be a detailed, meaningful description extracted directly from the user's bio content. DO NOT output placeholder text.\n"
         "Keep the JSON minimal but ensure it captures the essence of the content."
     )
@@ -779,7 +791,7 @@ async def code_generator(state: PortfolioState):
         model="meta/llama-3.3-70b-instruct",
         messages=[{"role":"user","content":prompt}],
         temperature=0.3,
-        max_tokens=1500,
+        max_tokens=4096,
         response_format={"type": "json_object"}
     )
     

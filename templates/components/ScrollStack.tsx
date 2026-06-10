@@ -5,23 +5,82 @@ import Lenis from 'lenis';
 export interface ScrollStackItemProps {
   itemClassName?: string;
   children?: ReactNode;
-  item?: { title?: string; description?: string; link?: string; [key: string]: any };
+  item?: { title?: string; name?: string; description?: string; link?: string; homepage?: string; category?: string; year?: string; techStack?: string[]; highlights?: string[]; lang?: string; stars?: number; forks?: number; [key: string]: any };
 }
 
 export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, itemClassName = '', item }) => (
   <div
-    className={`scroll-stack-card relative w-full h-80 my-8 p-12 rounded-[40px] shadow-[0_0_30px_rgba(0,0,0,0.1)] bg-[#120F17] border border-white/10 box-border origin-top will-change-transform ${itemClassName}`.trim()}
+    className={`scroll-stack-card relative w-full min-h-[420px] my-8 p-10 md:p-12 rounded-[40px] shadow-[0_0_30px_rgba(0,0,0,0.1)] bg-[#120F17] border border-white/10 box-border origin-top will-change-transform ${itemClassName}`.trim()}
     style={{
       backfaceVisibility: 'hidden',
       transformStyle: 'preserve-3d'
     }}
   >
     {item ? (
-      <div className="flex flex-col h-full text-white">
-        {(item.title || item.name) && <h3 className="text-3xl font-bold mb-4">{item.title || item.name}</h3>}
-        {item.description && <p className="text-gray-400 text-lg leading-relaxed">{item.description}</p>}
-        <div className="mt-auto">
-          {item.link && <a href={item.link} className="text-teal-400 hover:text-teal-300 font-semibold">View Project →</a>}
+      <div className="flex flex-col h-full text-white gap-5">
+        {/* Category & Year badge */}
+        {(item.category || item.year || item.lang) && (
+          <div className="flex items-center gap-3 text-xs font-bold tracking-[0.15em] uppercase">
+            {item.category && <span className="text-teal-400">{item.category}</span>}
+            {item.category && (item.year || item.lang) && <span className="text-gray-600">•</span>}
+            {item.year && <span className="text-gray-400">{item.year}</span>}
+            {item.year && item.lang && <span className="text-gray-600">•</span>}
+            {item.lang && <span className="text-gray-400">{item.lang}</span>}
+            {item.stars != null && item.stars > 0 && (
+              <>
+                <span className="text-gray-600">•</span>
+                <span className="text-yellow-400">★ {item.stars}</span>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Title */}
+        {(item.title || item.name) && (
+          <h3 className="text-2xl md:text-3xl font-extrabold leading-tight">{item.title || item.name}</h3>
+        )}
+
+        {/* Description */}
+        {item.description && (
+          <p className="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl">{item.description}</p>
+        )}
+
+        {/* Tech Stack Pills */}
+        {item.techStack && item.techStack.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-1">
+            {item.techStack.map((tech: string, i: number) => (
+              <span key={i} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 backdrop-blur-sm">{tech}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Highlights with checkmarks */}
+        {item.highlights && item.highlights.length > 0 && (
+          <div className="flex flex-col gap-3 mt-2">
+            {item.highlights.map((h: string, i: number) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </span>
+                <span className="text-gray-300 text-sm leading-relaxed">{h}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Action Links */}
+        <div className="mt-auto pt-4 flex items-center gap-4">
+          {item.homepage && (
+            <a href={item.homepage} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white text-sm font-semibold hover:bg-white/10 transition-all backdrop-blur-sm">
+              Visit Live WebApp
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </a>
+          )}
+          {item.link && (
+            <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 font-semibold text-sm flex items-center gap-1.5 transition-colors">
+              View Source →
+            </a>
+          )}
         </div>
       </div>
     ) : children}
